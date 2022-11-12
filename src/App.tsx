@@ -16,8 +16,8 @@ import {
 
 const App: Component = () => {
   const [canvas, setCanvas] = createSignal({
-    width: 1800,
-    height: 1050,
+    width: 600,
+    height: 600,
   });
 
   let cols: number, rows: number;
