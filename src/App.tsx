@@ -19,6 +19,9 @@ const App: Component = () => {
     width: 600,
     height: 600,
   });
+  let boxColor = getRandomColor();
+  let indicatorColor =  invertColor(boxColor, true);
+  let walls = findContrastingColor(boxColor, indicatorColor);
   let cols: number, rows: number;
   let w = 10;
   let grid: Cell[] = [];
@@ -119,19 +122,19 @@ const App: Component = () => {
       let y = this.j * w;
 
       if (this.visited) {
-        rect(x, y, w, w, "green");
+        rect(x, y, w, w, boxColor);
       }
       if (this.walls[0]) {
-        line(x, y, x + w, y, "white");
+        line(x, y, x + w, y, walls);
       }
       if (this.walls[1]) {
-        line(x + w, y, x + w, y + w, "white");
+        line(x + w, y, x + w, y + w, walls);
       }
       if (this.walls[2]) {
-        line(x + w, y + w, x, y + w, "white");
+        line(x + w, y + w, x, y + w, walls);
       }
       if (this.walls[3]) {
-        line(x, y + w, x, y, "white");
+        line(x, y + w, x, y, walls);
       }
     }
 
@@ -166,7 +169,7 @@ const App: Component = () => {
     highlight() {
       let x = this.i * w;
       let y = this.j * w;
-      rect(x + 1, y + 1, w - 2, w - 2, "magenta");
+      rect(x + 1, y + 1, w - 2, w - 2, indicatorColor);
     }
   }
 
@@ -199,21 +202,101 @@ const App: Component = () => {
   return (
     <div class="app-container">
       <Canvas width={canvas().width} height={canvas().height} />
-        <input
-          type="range"
-          min="1"
-          max="500"
-          onInput={
-            (e) => {
-              console.log(e.target.value);
-              setFrameRate(e.target.value);
-            }
-          }
-          class="slider"
-          id="myRange"
-        />
+      <input
+        type="range"
+        min="1"
+        max="500"
+        onInput={(e) => {
+          console.log(e.target.value);
+          setFrameRate(e.target.value);
+        }}
+        class="slider"
+        id="myRange"
+      />
     </div>
   );
 };
 
 export default App;
+
+function invertColor(hex: string, bw: any) {
+  if (hex.indexOf("#") === 0) {
+    hex = hex.slice(1);
+  }
+  // convert 3-digit hex to 6-digits.
+  if (hex.length === 3) {
+    hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+  }
+  if (hex.length !== 6) {
+    throw new Error("Invalid HEX color.");
+  }
+  let r: any = parseInt(hex.slice(0, 2), 16),
+    g: any = parseInt(hex.slice(2, 4), 16),
+    b: any = parseInt(hex.slice(4, 6), 16);
+  if (bw) {
+    // https://stackoverflow.com/a/3943023/112731
+    return r * 0.299 + g * 0.587 + b * 0.114 > 186 ? "#000000" : "#FFFFFF";
+  }
+  // invert color components
+  r = (255 - r).toString(16);
+  g = (255 - g).toString(16);
+  b = (255 - b).toString(16);
+  // pad each with zeros and return
+  return "#" + padZero(r) + padZero(g) + padZero(b);
+}
+
+function padZero(str: string, len?: number) {
+  len = len || 2;
+  var zeros = new Array(len).join("0");
+  return (zeros + str).slice(-len);
+}
+
+
+//find ocntrasting hex color between two other hex colors
+function findContrastingColor(hex1: string, hex2: string) {
+  var color1 = hexToRgb(hex1);
+  var color2 = hexToRgb(hex2);
+  var color3 = {
+    r: (color1.r + color2.r) / 2,
+    g: (color1.g + color2.g) / 2,
+    b: (color1.b + color2.b) / 2,
+  };
+  return rgbToHex(color3.r, color3.g, color3.b);
+}
+
+//convert hex color to rgb
+function hexToRgb(hex: string) {
+  // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+  var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+  hex = hex.replace(shorthandRegex, function (m, r, g, b) {
+    return r + r + g + g + b + b;
+  });
+
+  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result
+    ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16),
+      }
+    : null;
+}
+
+//convert rgb color to hex
+function rgbToHex(r: number, g: number, b: number) {
+  if (r > 255 || g > 255 || b > 255) throw "Invalid color component";
+  return (
+    "#" +
+    ((r << 16) | (g << 8) | b).toString(16).padStart(6, "0")
+  );
+}
+
+//generate random hex color
+function getRandomColor() {
+  var letters = "0123456789ABCDEF";
+  var color = "#";
+  for (var i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
