@@ -20,14 +20,13 @@ const App: Component = () => {
     width: 600,
     height: 600,
   });
-  let size = canvas().width*canvas().height;
   let cols: number, rows: number;
   let w = 10;
   let grid: Cell[] = [];
   let current: Cell;
   let next: any;
   let previous: Cell;
-  let frameRate = 100000;
+  let frameRate = Infinity;
   let stack: Cell[] = [];
 
   onMount(async () => {
@@ -39,6 +38,9 @@ const App: Component = () => {
           let cell = new Cell(i, j);
           grid.push(cell);
       }
+    }
+    for(let i = 0; i < grid.length; i++){
+      grid[i].show();
     }
     //set current to random cell
     current = grid[Math.floor(Math.random() * grid.length)];
@@ -57,15 +59,39 @@ const App: Component = () => {
   });
 
   const update = async () => {
-    for(let i = 0; i < grid.length; i++){
-      grid[i].show();
-    }
+    // for(let i = 0; i < grid.length; i++){
+    //   grid[i].show();
+    // }
+    let widthInBoxes = canvas().width / w;
+    let currentIndex = grid.indexOf(current);
+ 
 
+    current.show();
+    if(grid[currentIndex + 1]){
+      grid[currentIndex + 1].show();
+    }
+    if(grid[currentIndex - 1]){
+      grid[currentIndex - 1].show();
+    }
+    if(grid[currentIndex + widthInBoxes]){
+      grid[currentIndex + widthInBoxes].show();
+    }
+    if(grid[currentIndex - widthInBoxes]){
+      grid[currentIndex - widthInBoxes].show();
+    }
     current.visited = true;
     current.highlight();
+   
+
+  
 
     //Step 1
     next = current.checkNeighbors();
+    if(next){
+      next.show();
+    }
+  
+    
 
     if (next) {
       next.visited = true;
@@ -77,7 +103,6 @@ const App: Component = () => {
       removeWalls(current, next);
 
       //Step 4
-      console.log(grid.length);
 
 
       current = next;

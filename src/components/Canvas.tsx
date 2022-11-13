@@ -78,7 +78,6 @@ export const Canvas: Component<{width: number, height: number}> = ({width, heigh
     //             CANVAS2.width = window.innerWidth;
     //             CANVAS2.height = window.innerHeight;
     //             createCanvas();
-    //             drawCircle(100, 100, 50, "red");
             
     //     })
     // });
@@ -90,12 +89,17 @@ export const Canvas: Component<{width: number, height: number}> = ({width, heigh
 
 
 
-    return (<canvas
+    return (
+    <div class="canvas-container">
+       <canvas
         class="canvas"
         ref={setCanvas}
         width={width}
         height={height}
         style="border: 1px solid #000"
         >
-        </canvas>);
+        </canvas>
+    </div>
+    );
+       
 };
