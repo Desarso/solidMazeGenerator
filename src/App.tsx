@@ -205,10 +205,12 @@ const App: Component = () => {
       <input
         type="range"
         min="1"
-        max="500"
+        max="250"
         onInput={(e) => {
-          console.log(e.target.value);
-          setFrameRate(e.target.value);
+          // console.log(e.target.value);
+          setFrameRate(1*(e.target.value)^2);
+          console.log(1*(e.target.value)^2)
+          // setFrameRate(e.target.value);
         }}
         class="slider"
         id="myRange"
