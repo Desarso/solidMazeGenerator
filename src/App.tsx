@@ -14,12 +14,6 @@ import {
   rect,
 } from "./components/Canvas";
 
-import init, { add, main } from "../rust-modules/pkg/rust_modules";
-
-await init();
-
-console.log(add(35, 2));
-console.log(main("Hello "));
 
 const App: Component = () => {
   const [canvas, setCanvas] = createSignal({
