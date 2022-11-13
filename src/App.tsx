@@ -5,6 +5,7 @@ import {
   onCleanup,
   onMount,
 } from "solid-js";
+import { ModuleGraph } from "vite";
 import {
   Canvas,
   circle,
@@ -19,17 +20,24 @@ const App: Component = () => {
     width: 600,
     height: 600,
   });
+
+ 
   let boxColor = getRandomColor();
-  let indicatorColor =  invertColor(boxColor, true);
+  let indicatorColor = invertColor(boxColor, true);
   let walls = findContrastingColor(boxColor, indicatorColor);
   let cols: number, rows: number;
-  let w = 10;
+  let w = 30;
   let grid: Cell[] = [];
   let current: Cell;
-  let next: any;
+  let next: Cell;
   let previous: Cell;
-  let [frameRate, setFrameRate] = createSignal(10000);
+  let [frameRate, setFrameRate] = createSignal(22);
   let stack: Cell[] = [];
+  let widthInBoxes = canvas().width / w;
+  let currentIndex: number;
+  let firstIndex: number;
+  let t0: any;
+  let t1: any;
 
   onMount(async () => {
     createCanvas();
@@ -46,6 +54,9 @@ const App: Component = () => {
     }
     //set current to random cell
     current = grid[Math.floor(Math.random() * grid.length)];
+    firstIndex = grid.indexOf(current);
+    t0 = performance.now();
+    game();
   });
 
   const game = async () => {
@@ -61,11 +72,10 @@ const App: Component = () => {
   });
 
   const update = async () => {
-    // for(let i = 0; i < grid.length; i++){
-    //   grid[i].show();
-    // }
-    let widthInBoxes = canvas().width / w;
-    let currentIndex = grid.indexOf(current);
+ 
+    //time performance of function
+
+    currentIndex = grid.indexOf(current);
 
     current.show();
     if (grid[currentIndex + 1]) {
@@ -81,15 +91,15 @@ const App: Component = () => {
       grid[currentIndex - widthInBoxes].show();
     }
     current.visited = true;
+
+    previous = grid[grid.indexOf(current)];
     current.highlight();
 
     //Step 1
     next = current.checkNeighbors();
-    if (next) {
-      next.show();
-    }
 
     if (next) {
+      next.show();
       next.visited = true;
       //Step 2
       stack.push(current);
@@ -103,6 +113,13 @@ const App: Component = () => {
       current = next;
     } else if (stack.length > 0) {
       current = stack.pop();
+
+      if (stack.length === 0) {
+        t1 = performance.now();
+        console.log(previous);
+        console.log(current);
+        console.log("Build maze took " + (t1 - t0)/1000 + " seconds.");
+      }
     }
   };
 
@@ -173,6 +190,7 @@ const App: Component = () => {
     }
   }
 
+
   function index(i: number, j: number) {
     if (i < 0 || j < 0 || i > cols - 1 || j > rows - 1) {
       return -1;
@@ -199,22 +217,46 @@ const App: Component = () => {
     }
   }
 
+  const restartApp = () => {
+    console.log("restart");
+    rect(0, 0, canvas().width, canvas().height, "rgb(62, 62, 62)");
+    for(let i = 0; i < grid.length; i++){
+      grid[i].visited = false;
+      grid[i].walls = [true, true, true, true];
+      grid[i].show();
+    }
+  }
+
   return (
     <div class="app-container">
-      <Canvas width={canvas().width} height={canvas().height} style={boxColor} />
+      <Canvas
+        width={canvas().width}
+        height={canvas().height}
+        style={boxColor}
+      />
       <input
         type="range"
-        min="1"
+        min="3"
         max="100"
+        value={22}
         onInput={(e) => {
           // console.log(e.target.value);
-          setFrameRate(3*(e.target.value)^2);
-          console.log(3*(e.target.value)^2)
+          setFrameRate(
+            ((2 * e.target.value) ^ 2) < 200
+              ? 2 * (e.target.value ^ 2)
+              : Infinity
+          );
+          console.log(
+            ((2 * e.target.value) ^ 2) < 200
+              ? 2 * (e.target.value ^ 2)
+              : Infinity
+          );
           // setFrameRate(e.target.value);
         }}
         class="slider"
         id="myRange"
       />
+      <button onClick={restartApp}>Restart</button>
     </div>
   );
 };
@@ -253,7 +295,6 @@ function padZero(str: string, len?: number) {
   return (zeros + str).slice(-len);
 }
 
-
 //find ocntrasting hex color between two other hex colors
 function findContrastingColor(hex1: string, hex2: string) {
   var color1 = hexToRgb(hex1);
@@ -287,10 +328,7 @@ function hexToRgb(hex: string) {
 //convert rgb color to hex
 function rgbToHex(r: number, g: number, b: number) {
   if (r > 255 || g > 255 || b > 255) throw "Invalid color component";
-  return (
-    "#" +
-    ((r << 16) | (g << 8) | b).toString(16).padStart(6, "0")
-  );
+  return "#" + ((r << 16) | (g << 8) | b).toString(16).padStart(6, "0");
 }
 
 //generate random hex color
