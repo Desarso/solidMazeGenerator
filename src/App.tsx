@@ -199,7 +199,6 @@ const App: Component = () => {
   return (
     <div class="app-container">
       <Canvas width={canvas().width} height={canvas().height} />
-      <div class="slidecontainer">
         <input
           type="range"
           min="1"
@@ -210,14 +209,9 @@ const App: Component = () => {
               setFrameRate(e.target.value);
             }
           }
-          onChange={(e) => {
-        
-          }}
-
           class="slider"
           id="myRange"
         />
-      </div>
     </div>
   );
 };
