@@ -14,7 +14,6 @@ import {
   rect,
 } from "./components/Canvas";
 
-
 const App: Component = () => {
   const [canvas, setCanvas] = createSignal({
     width: 600,
@@ -26,7 +25,7 @@ const App: Component = () => {
   let current: Cell;
   let next: any;
   let previous: Cell;
-  let frameRate = Infinity;
+  let [frameRate, setFrameRate] = createSignal(10000);
   let stack: Cell[] = [];
 
   onMount(async () => {
@@ -35,11 +34,11 @@ const App: Component = () => {
     rows = Math.floor(canvas().height / w);
     for (let j = 0; j < rows; j++) {
       for (let i = 0; i < cols; i++) {
-          let cell = new Cell(i, j);
-          grid.push(cell);
+        let cell = new Cell(i, j);
+        grid.push(cell);
       }
     }
-    for(let i = 0; i < grid.length; i++){
+    for (let i = 0; i < grid.length; i++) {
       grid[i].show();
     }
     //set current to random cell
@@ -51,7 +50,7 @@ const App: Component = () => {
   };
 
   createEffect(() => {
-    const interval = setInterval(game, 1000 / frameRate);
+    const interval = setInterval(game, 1000 / frameRate());
 
     onCleanup(() => {
       clearInterval(interval);
@@ -64,34 +63,28 @@ const App: Component = () => {
     // }
     let widthInBoxes = canvas().width / w;
     let currentIndex = grid.indexOf(current);
- 
 
     current.show();
-    if(grid[currentIndex + 1]){
+    if (grid[currentIndex + 1]) {
       grid[currentIndex + 1].show();
     }
-    if(grid[currentIndex - 1]){
+    if (grid[currentIndex - 1]) {
       grid[currentIndex - 1].show();
     }
-    if(grid[currentIndex + widthInBoxes]){
+    if (grid[currentIndex + widthInBoxes]) {
       grid[currentIndex + widthInBoxes].show();
     }
-    if(grid[currentIndex - widthInBoxes]){
+    if (grid[currentIndex - widthInBoxes]) {
       grid[currentIndex - widthInBoxes].show();
     }
     current.visited = true;
     current.highlight();
-   
-
-  
 
     //Step 1
     next = current.checkNeighbors();
-    if(next){
+    if (next) {
       next.show();
     }
-  
-    
 
     if (next) {
       next.visited = true;
@@ -104,14 +97,11 @@ const App: Component = () => {
 
       //Step 4
 
-
       current = next;
     } else if (stack.length > 0) {
       current = stack.pop();
     }
   };
-
-
 
   class Cell {
     i: number;
@@ -176,7 +166,7 @@ const App: Component = () => {
     highlight() {
       let x = this.i * w;
       let y = this.j * w;
-      rect(x+1, y+1, w-2, w-2, "magenta");
+      rect(x + 1, y + 1, w - 2, w - 2, "magenta");
     }
   }
 
@@ -207,8 +197,27 @@ const App: Component = () => {
   }
 
   return (
-    <div>
+    <div class="app-container">
       <Canvas width={canvas().width} height={canvas().height} />
+      <div class="slidecontainer">
+        <input
+          type="range"
+          min="1"
+          max="500"
+          onInput={
+            (e) => {
+              console.log(e.target.value);
+              setFrameRate(e.target.value);
+            }
+          }
+          onChange={(e) => {
+        
+          }}
+
+          class="slider"
+          id="myRange"
+        />
+      </div>
     </div>
   );
 };
