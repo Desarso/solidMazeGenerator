@@ -201,7 +201,7 @@ const App: Component = () => {
 
   return (
     <div class="app-container">
-      <Canvas width={canvas().width} height={canvas().height} />
+      <Canvas width={canvas().width} height={canvas().height} style={boxColor} />
       <input
         type="range"
         min="1"

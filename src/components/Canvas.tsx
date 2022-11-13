@@ -64,7 +64,7 @@ export const circle = (x: number, y: number, r: number, color: string) => {
 
 
 
-export const Canvas: Component<{width: number, height: number}> = ({width, height}) => {
+export const Canvas: Component<{width: number, height: number, style: string}> = ({width, height, style}) => {
 
     
 
@@ -96,7 +96,7 @@ export const Canvas: Component<{width: number, height: number}> = ({width, heigh
         ref={setCanvas}
         width={width}
         height={height}
-        style="border: 1px solid #000"
+        style={`border: 1px solid #000; background-color:${style}`}
         >
         </canvas>
     </div>
