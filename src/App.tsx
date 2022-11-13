@@ -14,45 +14,44 @@ import {
   rect,
 } from "./components/Canvas";
 
+import init, { add, main } from "../rust-modules/pkg/rust_modules";
+
+await init();
+
+console.log(add(35, 2));
+console.log(main("Hello "));
+
 const App: Component = () => {
   const [canvas, setCanvas] = createSignal({
     width: 600,
     height: 600,
   });
-
+  let size = canvas().width*canvas().height;
   let cols: number, rows: number;
-  let w = 15;
+  let w = 10;
   let grid: Cell[] = [];
   let current: Cell;
   let next: any;
   let previous: Cell;
-  let frameRate = 1000;
+  let frameRate = 100000;
   let stack: Cell[] = [];
 
   onMount(async () => {
+    createCanvas();
     cols = Math.floor(canvas().width / w);
     rows = Math.floor(canvas().height / w);
-    for (let i = 0; i < cols; i++) {
-      for (let j = 0; j < rows; j++) {
-        for (let i = 0; i < cols; i++) {
+    for (let j = 0; j < rows; j++) {
+      for (let i = 0; i < cols; i++) {
           let cell = new Cell(i, j);
           grid.push(cell);
-        }
       }
-          createCanvas();
     }
-    // createCanvas();
-    current = grid[0];
-    for (let i = 0; i < grid.length; i++) {
-      grid[i].show();
-    }
-
-    game();
+    //set current to random cell
+    current = grid[Math.floor(Math.random() * grid.length)];
   });
 
   const game = async () => {
     await update();
-    await render();
   };
 
   createEffect(() => {
@@ -64,43 +63,36 @@ const App: Component = () => {
   });
 
   const update = async () => {
+    for(let i = 0; i < grid.length; i++){
+      grid[i].show();
+    }
+
     current.visited = true;
-    // current.highlight();
+    current.highlight();
 
     //Step 1
     next = current.checkNeighbors();
 
     if (next) {
       next.visited = true;
-      current.highlight();
       //Step 2
       stack.push(current);
-
 
       //Step 3
 
       removeWalls(current, next);
-    
 
       //Step 4
-      current.show();
-      next.show();
+      console.log(grid.length);
+
+
       current = next;
-      
-    }else if(stack.length > 0){
-      current  = stack.pop();
-      
+    } else if (stack.length > 0) {
+      current = stack.pop();
     }
-
-    
   };
 
-  const render = async () => {
 
-
-  
-   
-  };
 
   class Cell {
     i: number;
@@ -117,10 +109,8 @@ const App: Component = () => {
       let x = this.i * w;
       let y = this.j * w;
 
-      console.log(this);
-
       if (this.visited) {
-        rect(x, y, w, w, "purple");
+        rect(x, y, w, w, "green");
       }
       if (this.walls[0]) {
         line(x, y, x + w, y, "white");
@@ -167,10 +157,8 @@ const App: Component = () => {
     highlight() {
       let x = this.i * w;
       let y = this.j * w;
-      rect(x, y, w, w, "green");
+      rect(x+1, y+1, w-2, w-2, "magenta");
     }
-
-
   }
 
   function index(i: number, j: number) {
@@ -183,7 +171,6 @@ const App: Component = () => {
   function removeWalls(a: Cell, b: Cell) {
     let x = a.i - b.i;
     if (x === 1) {
-      console.log(a);
       a.walls[3] = false;
       b.walls[1] = false;
     } else if (x === -1) {

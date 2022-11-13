@@ -27,6 +27,7 @@ export const circle = (x: number, y: number, r: number, color: string) => {
   
   };
 
+
   export const rect = (x: number, y: number, w: number, h: number, color: string) => {
     ctx().fillStyle = color;
     if(fill() === true){
