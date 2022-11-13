@@ -96,7 +96,7 @@ export const Canvas: Component<{width: number, height: number, style: string}> =
         ref={setCanvas}
         width={width}
         height={height}
-        style={`border: 1px solid #000; background-color:${style}`}
+        style={`border: 1px solid #000`}
         >
         </canvas>
     </div>
