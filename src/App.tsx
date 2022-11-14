@@ -21,7 +21,6 @@ const App: Component = () => {
     height: 600,
   });
 
- 
   let boxColor = getRandomColor();
   let indicatorColor = invertColor(boxColor, true);
   let walls = findContrastingColor(boxColor, indicatorColor);
@@ -72,7 +71,6 @@ const App: Component = () => {
   });
 
   const update = async () => {
- 
     //time performance of function
 
     currentIndex = grid.indexOf(current);
@@ -118,7 +116,7 @@ const App: Component = () => {
         t1 = performance.now();
         console.log(previous);
         console.log(current);
-        console.log("Build maze took " + (t1 - t0)/1000 + " seconds.");
+        console.log("Build maze took " + (t1 - t0) / 1000 + " seconds.");
       }
     }
   };
@@ -190,7 +188,6 @@ const App: Component = () => {
     }
   }
 
-
   function index(i: number, j: number) {
     if (i < 0 || j < 0 || i > cols - 1 || j > rows - 1) {
       return -1;
@@ -220,12 +217,17 @@ const App: Component = () => {
   const restartApp = () => {
     console.log("restart");
     rect(0, 0, canvas().width, canvas().height, "rgb(62, 62, 62)");
-    for(let i = 0; i < grid.length; i++){
+    boxColor = getRandomColor();
+    indicatorColor = invertColor(boxColor, true);
+    walls = findContrastingColor(boxColor, indicatorColor);
+    for (let i = 0; i < grid.length; i++) {
       grid[i].visited = false;
       grid[i].walls = [true, true, true, true];
       grid[i].show();
+      stack = [];
+     
     }
-  }
+  };
 
   return (
     <div class="app-container">
